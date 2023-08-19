@@ -1,0 +1,10 @@
+declare
+fun {Fact N}
+   if N==0 then
+      1
+   else
+      N*{Fact N-1}
+   end
+end
+
+Essa função verifica se o argumento N recebido é 0. Caso seja, essa função retorna 1, se não, a função retorna o produto da multiplicação entre N e o resultado da função Fact N-1.O fato de a cada execução dessa função com argumento diferente de 0, implica que a função será chamada para todo numero entre N e 0. Como essa função vai ser chamada para cada numero natural entre N e 0, e existe uma multiplicação entre eles, todos esses valores serão multiplicados, o que define matematicamente a função fatorial.
