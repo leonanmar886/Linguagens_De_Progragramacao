@@ -1,33 +1,36 @@
-defmodule TreeNode do
+defmodule Tree do
   defstruct key: 0, val: 0, left: nil, right: nil
 
   def tree(key, val, left, right) do
-    %TreeNode{key: key, val: val, left: left, right: right}
+    %Tree{key: key, val: val, left: left, right: right}
+  end
+
+  def leaf do
+    :leaf
   end
 end
 
 defmodule DepthFirst do
   @scale 30
 
-  def depthFirst(nil, _level, _leftLim, _root_x, _rightLim) do
-    {nil, 0.0, 0.0}
-  end
+  defstruct tree: nil, rootX: nil, rightLim: nil
 
-  def depthFirst(%TreeNode{key: key, val: val, left: l, right: r}, level, leftLim, root_x, rightLim) do
+  def depthFirst(%Tree{key: key, val: val, left: l, right: r}, level, leftLim, root_x, rightLim) do
     y = @scale * level
+    defstruct tree: nil, rootX: nil, rightLim: nil
 
-    case {l, r} do
-      {nil, nil} ->
+    case tree do
+      %Tree{left: :leaf, right: :leaf} ->
         x = root_x
         rightLim = root_x
         leftLim = root_x
-      {l, nil} ->
+      %Tree{left: %Tree{}, right: :leaf} ->
         x = root_x
         depthFirst(l, level + 1, leftLim, root_x, rightLim)
-      {nil, r} ->
+      %Tree{left: :leaf, right: %Tree{}} ->
         x = root_x
         depthFirst(r, level + 1, leftLim, root_x, rightLim)
-      {l, r} ->
+      %Tree{left:  %Tree{}, right: %Tree{}} ->
         {l_node, lroot_x, lrightLim} = depthFirst(l, level + 1, leftLim, root_x, rightLim)
         rleftLim = lrightLim+@scale
         {r_node, rroot_x, _} = depthFirst(r, level + 1, rleftLim, rleftLim, rightLim)
@@ -40,25 +43,25 @@ end
 
 # Correção na definição da árvore
 tree =
-  TreeNode.tree(:a, 111,
-    TreeNode.tree(:b, 55,
-      TreeNode.tree(:x, 100,
-        TreeNode.tree(:z, 56, nil, nil),
-        TreeNode.tree(:w, 23, nil, nil)
+  Tree.tree(:a, 111,
+    Tree.tree(:b, 55,
+      Tree.tree(:x, 100,
+        Tree.tree(:z, 56, nil, nil),
+        Tree.tree(:w, 23, nil, nil)
       ),
-      TreeNode.tree(:y, 105, nil,
-        TreeNode.tree(:r, 77, nil, nil)
+      Tree.tree(:y, 105, nil,
+        Tree.tree(:r, 77, nil, nil)
       )
     ),
-    TreeNode.tree(:c, 123,
-      TreeNode.tree(:d, 119,
-        TreeNode.tree(:g, 44, nil, nil),
-        TreeNode.tree(:h, 50,
-          TreeNode.tree(:i, 5, nil, nil),
-          TreeNode.tree(:j, 6, nil, nil)
+    Tree.tree(:c, 123,
+      Tree.tree(:d, 119,
+        Tree.tree(:g, 44, nil, nil),
+        Tree.tree(:h, 50,
+          Tree.tree(:i, 5, nil, nil),
+          Tree.tree(:j, 6, nil, nil)
         )
       ),
-      TreeNode.tree(:e, 133, nil, nil)
+      Tree.tree(:e, 133, nil, nil)
     )
   )
 
