@@ -4,44 +4,46 @@ defmodule Tree do
   def tree(key, val, left, right) do
     %Tree{key: key, val: val, left: left, right: right}
   end
-
-  def leaf do
-    :leaf
-  end
 end
 
 defmodule DepthFirst do
   @scale 30
 
   defstruct tree: nil, rootX: nil, rightLim: nil
-
-  def depthFirst(%Tree{key: key, val: val, left: l, right: r}, level, leftLim, root_x, rightLim) do
+  
+  def depthFirst(tree, level, leftLim) do
     y = @scale * level
-    defstruct tree: nil, rootX: nil, rightLim: nil
-
+    
     case tree do
-      %Tree{left: :leaf, right: :leaf} ->
+    
+      %Tree{left: nil, right: nil} ->
+        x = root_x = rightLim = leftLim
+        IO.inspect({ tree.key, tree.val, x, y })
+        {root_x, rightLim}
+        
+      %Tree{left: %Tree{}, right: nil} ->
+        { root_x, rightLim} = depthFirst(tree.left, level + 1, leftLim)
         x = root_x
-        rightLim = root_x
-        leftLim = root_x
-      %Tree{left: %Tree{}, right: :leaf} ->
+        IO.inspect({tree.key, tree.val, x, y })
+        { root_x, rightLim}
+        
+      %Tree{left: nil, right: %Tree{}} ->
+        {root_x, rightLim} = depthFirst(tree.right, level + 1, leftLim)
         x = root_x
-        depthFirst(l, level + 1, leftLim, root_x, rightLim)
-      %Tree{left: :leaf, right: %Tree{}} ->
-        x = root_x
-        depthFirst(r, level + 1, leftLim, root_x, rightLim)
+        IO.inspect({tree.key, tree.val, x, y })
+        {root_x, rightLim}
+        
       %Tree{left:  %Tree{}, right: %Tree{}} ->
-        {l_node, lroot_x, lrightLim} = depthFirst(l, level + 1, leftLim, root_x, rightLim)
-        rleftLim = lrightLim+@scale
-        {r_node, rroot_x, _} = depthFirst(r, level + 1, rleftLim, rleftLim, rightLim)
-        x = (lroot_x + rroot_x) / 2
+        {lroot_x, lrightLim} = depthFirst(tree.left, level + 1, leftLim)
+        rleftLim = lrightLim + @scale
+        {rroot_x, rrightLim} = depthFirst(tree.right, level + 1, rleftLim)
+        x = (rroot_x + lroot_x) / 2
+        IO.inspect({tree.key, tree.val, x, y })
+        {x, rrightLim}
     end
-    IO.inspect({ %{key: key, val: val}, x, y })
-    #{ %{key: key, val: val}, x, y }
   end
 end
 
-# Correção na definição da árvore
 tree =
   Tree.tree(:a, 111,
     Tree.tree(:b, 55,
@@ -64,8 +66,4 @@ tree =
       Tree.tree(:e, 133, nil, nil)
     )
   )
-
-# Correção na chamada da função
-fun = DepthFirst.depthFirst(tree, 1, 30, 0, 0)
-
-IO.inspect(fun)
+DepthFirst.depthFirst(tree, 1, 30)
