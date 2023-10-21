@@ -1,20 +1,9 @@
-# [cabeça | cauda] = s1
-# case  
-# peg o retorno do primeiro if 
-# tupla= {true false(is atom), atom, resto da lista}
-# head = elem[tupla,0]
-# stat retorna o nó + resto da lista 
-# prog monta nó principal
-# stat monta sub nós
-
-
 defmodule Parser do
-
-  defmodule NodeInit do
+  defmodule Node do
     defstruct name: nil, left: nil, right: nil
 
     def new(name, left, right) do
-      %NodeInit{name: name, left: left, right: right}
+      %Node{name: name, left: left, right: right}
     end
   end
 
@@ -27,25 +16,25 @@ defmodule Parser do
   end
 
 
-  defmodule NodeUnario do
+  defmodule UniqueNode do
     defstruct state: nil, id: nil
 
     def new(state, id) do
-      %NodeUnario{state: state, id: id}
+      %UniqueNode{state: state, id: id}
     end
   end
 
 
-  defmodule NodeBinario do
+  defmodule MultipleNode do
     defstruct operator: nil, left: nil, right: nil
 
     def new(operator, left, right) do
-      %NodeBinario{operator: operator, left: left, right: right}
+      %MultipleNode{operator: operator, left: left, right: right}
     end
   end
 
 
-  def prog(s1) do 
+  def prog(s1) do
     [head1 | s2] = s1
     if head1 == :program do
       result=id(s2)
@@ -57,17 +46,17 @@ defmodule Parser do
           {z,s5}=stat(s4)
           [head3 | sn] = s5
           if head3 == 'end' do
-            {NodeInit.new(:program, y, z), sn}
+            {Node.new(:program, y, z), sn}
           end
         end
       end
     end
-  end 
+  end
 
   def stat(s1) do
     [t | s2]=s1
     case t do
-    :if -> 
+    :if ->
       {c,s3} = comp(s2)
       [head4 | s4]=s3
       if head4 == :then do
@@ -77,7 +66,7 @@ defmodule Parser do
           {x2,sn}=stat(s6)
           {NodeState.new(:if, c, x1, x2), sn}
         else
-          {NodeBinario.new(:if, c, x1), s5}
+          {MultipleNode.new(:if, c, x1), s5}
         end
       end
 
@@ -86,27 +75,27 @@ defmodule Parser do
       [head6|s4] = s3
       if head6 == :do do
         {x,sn} = stat(s4)
-        {NodeBinario.new(:while, c, x), sn}
+        {MultipleNode.new(:while, c, x), sn}
       end
 
     :read ->
       {resul,i,sn} = id(s2)
       if resul do
-        {NodeUnario.new(:read, i), sn}
+        {UniqueNode.new(:read, i), sn}
       end
 
     :write ->
       {e,sn} = expr(s2)
-      {NodeUnario.new(:read, e), sn}
+      {UniqueNode.new(:read, e), sn}
 
     _ ->
       if isIdent(t) do
         [head7|s3] = s2
         if head7 == ':=' do
           {e, sn} = expr(s3)
-          {NodeBinario.new(':=', t, e), sn}
+          {MultipleNode.new(':=', t, e), sn}
         else
-          raise "token não identificado"
+          raise "token desconhecido"
         end
       end
     end
@@ -117,7 +106,7 @@ defmodule Parser do
     [t|s3] = s2
     if sep.(t) do
       {x2, sn} = sequence(nonTerm, sep, s3)
-      {NodeBinario.new(t, x1, x2), sn}
+      {MultipleNode.new(t, x1, x2), sn}
     else
       {x1, s2}
     end
@@ -173,9 +162,9 @@ defmodule Parser do
   def id(s1) do
     case s1 do
     nil -> false
-    _ -> 
+    _ ->
       [x|sn] = s1
-      if isIdent(x) do 
+      if isIdent(x) do
         {true, x, sn}
       else
         {false, x, sn}
@@ -192,7 +181,6 @@ defmodule Parser do
   end
 end
 
-
-programa = [:program, 'progName', ';', :if, :b, '<', 3, :then, :x, ':=', 1, '+', 54, :else, :x, ':=', 1, 'end']
-{syntatic, sn} = Parser.prog(programa)
+x = [:program, 'progName', ';', :if, :b, '<', 3, :then, :x, ':=', 1, '+', 54, :else, :x, ':=', 1, 'end']
+{syntatic, sn} = Parser.prog(x)
 IO.inspect(syntatic)
